@@ -1,101 +1,112 @@
-// Authentication management
 class AuthService {
-    constructor() {
-        this.checkAuthStatus();
+    static async register(userData) {
+        try {
+            const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.REGISTER}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `Ошибка регистрации: ${response.status}`);
+            }
+
+            const result = await response.json();
+            return result;
+
+        } catch (error) {
+            console.error('AuthService register error:', error);
+            throw error;
+        }
     }
 
-    // Check if user is logged in
-    checkAuthStatus() {
-        const token = localStorage.getItem('authToken');
-        const userData = localStorage.getItem('userData');
+    static async login(credentials) {
+        try {
+            const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.LOGIN}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(credentials)
+            });
 
-        if (token && userData) {
-            try {
-                CURRENT_USER.token = token;
-                CURRENT_USER = { ...CURRENT_USER, ...JSON.parse(userData) };
-                this.updateUI();
-                return true;
-            } catch (error) {
-                this.logout();
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                
+                if (response.status === 401) {
+                    throw new Error('Неверное имя пользователя или пароль');
+                }
+                
+                throw new Error(errorData.message || `Ошибка входа: ${response.status}`);
+            }
+
+            const result = await response.json();
+            
+            this.setUserData(result);
+            this.updateUI();
+            
+            return result;
+
+        } catch (error) {
+            console.error('AuthService login error:', error);
+            throw error;
+        }
+    }
+
+    static setUserData(userData) {
+        localStorage.setItem('xbank_user', JSON.stringify(userData));
+    }
+
+    static getCurrentUser() {
+        const user = localStorage.getItem('xbank_user');
+        return user ? JSON.parse(user) : null;
+    }
+
+    static isAuthenticated() {
+        return this.getCurrentUser() !== null;
+    }
+
+    static logout() {
+        localStorage.removeItem('xbank_user');
+        this.updateUI();
+    }
+
+    static updateUI() {
+        const user = this.getCurrentUser();
+        const welcomeView = document.getElementById('welcomeView');
+        const dashboardView = document.getElementById('dashboardView');
+        const headerActions = document.getElementById('headerActions');
+
+        if (user) {
+            if (welcomeView) welcomeView.style.display = 'none';
+            if (dashboardView) {
+                dashboardView.style.display = 'block';
+                const userName = document.getElementById('userName');
+                if (userName) userName.textContent = user.username || 'Пользователь';
+            }
+            if (headerActions) {
+                headerActions.innerHTML = `
+                    <div class="user-info">
+                        <span>${user.username}</span>
+                        <button class="secondary-button" onclick="AuthService.logout()">Выйти</button>
+                    </div>
+                `;
+            }
+        } else {
+            if (welcomeView) welcomeView.style.display = 'flex';
+            if (dashboardView) dashboardView.style.display = 'none';
+            if (headerActions) {
+                headerActions.innerHTML = `
+                    <button class="primary-button" onclick="UIManager.showAuthModal()">Войти</button>
+                `;
             }
         }
-        return false;
-    }
-
-    // Login user
-    async login(email, password) {
-        try {
-            const response = await api.login({ email, password });
-            
-            // Store auth data
-            localStorage.setItem('authToken', response.token);
-            localStorage.setItem('userData', JSON.stringify(response.user));
-            
-            // Update current user
-            CURRENT_USER = { ...CURRENT_USER, ...response.user, token: response.token };
-            this.updateUI();
-            
-            showSuccess(`Добро пожаловать, ${response.user.name}!`);
-            return true;
-        } catch (error) {
-            showError(error.message || 'Ошибка входа');
-            return false;
-        }
-    }
-
-    // Logout user
-    async logout() {
-        try {
-            await api.logout();
-        } catch (error) {
-            console.error('Logout error:', error);
-        } finally {
-            // Clear stored data
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('userData');
-            
-            // Reset current user
-            CURRENT_USER = {
-                id: null,
-                name: 'Гость',
-                token: null,
-                refreshToken: null
-            };
-            
-            this.updateUI();
-            showSuccess('Вы успешно вышли из системы');
-        }
-    }
-
-    // Update UI based on auth status
-    updateUI() {
-        const userNameElement = document.getElementById('user-name');
-        const userAvatarElement = document.getElementById('user-avatar');
-        const welcomeTitleElement = document.getElementById('welcome-title');
-
-        if (CURRENT_USER.token) {
-            // User is logged in
-            if (userNameElement) userNameElement.textContent = CURRENT_USER.name;
-            if (userAvatarElement) userAvatarElement.textContent = CURRENT_USER.name.charAt(0);
-            if (welcomeTitleElement) welcomeTitleElement.textContent = `Добро пожаловать, ${CURRENT_USER.name}!`;
-        } else {
-            // User is not logged in
-            if (userNameElement) userNameElement.textContent = 'Гость';
-            if (userAvatarElement) userAvatarElement.textContent = 'Г';
-            if (welcomeTitleElement) welcomeTitleElement.textContent = 'Добро пожаловать!';
-        }
-    }
-
-    // Check if user is authenticated
-    isAuthenticated() {
-        return !!CURRENT_USER.token;
-    }
-
-    // Get current user
-    getCurrentUser() {
-        return { ...CURRENT_USER };
     }
 }
 
-// Create global auth instance
-const auth = new AuthService();
+document.addEventListener('DOMContentLoaded', () => {
+    AuthService.updateUI();
+});
