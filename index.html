@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XBank</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">XBank</div>
+                <nav>
+                    <ul>
+                        <li><a href="#" class="nav-link active" data-section="overview">Обзор</a></li>
+                        <li><a href="#" class="nav-link" data-section="transfer">Переводы</a></li>
+                        <li><a href="#" class="nav-link" data-section="history">История</a></li>
+                    </ul>
+                </nav>
+                <div class="user-menu">
+                    <span id="user-name">Иван</span>
+                    <div class="user-avatar" id="user-avatar">ИИ</div>
+                    <button id="logout-btn" class="btn btn-outline">Выйти</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Overview Section -->
+        <section id="overview" class="content-section active">
+            <div class="welcome-section">
+                <h1 id="welcome-title">Добро пожаловать!</h1>
+                <p>Ваши финансы под контролем.</p>
+            </div>
+
+            <div class="accounts-section">
+                <h2>Мои счета</h2>
+                <div class="accounts-grid" id="accounts-grid">
+                    <!-- Accounts will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Transfer Section -->
+        <section id="transfer" class="content-section">
+            <div class="transfer-section">
+                <h2>Перевод средств</h2>
+                <form id="transfer-form">
+                    <div class="form-group">
+                        <label for="from-account">Списать со счета:</label>
+                        <select id="from-account" required>
+                            <option value="">Выберите счет</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="to-account">Номер счета получателя:</label>
+                        <input type="text" id="to-account" placeholder="Введите номер счета" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="amount">Сумма перевода:</label>
+                        <input type="number" id="amount" placeholder="0,00" min="1" step="0.01" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Назначение платежа:</label>
+                        <input type="text" id="message" placeholder="Необязательно">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Перевести</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- History Section -->
+        <section id="history" class="content-section">
+            <div class="history-section">
+                <div class="section-header">
+                    <h2>История платежей</h2>
+                    <button class="btn btn-outline" id="show-all-history">Вся история</button>
+                </div>
+                <div class="transactions-list" id="recent-transactions">
+                    <!-- Transactions will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Detailed History Section -->
+        <section id="detailed-history" class="content-section">
+            <div class="detailed-history-section">
+                <div class="section-header">
+                    <h2>Вся история операций</h2>
+                    <button class="btn btn-outline" id="back-to-history">Назад к истории</button>
+                </div>
+                
+                <div class="history-filters">
+                    <div class="filter-group">
+                        <label for="date-filter">Период:</label>
+                        <select id="date-filter">
+                            <option value="all">За все время</option>
+                            <option value="week">За неделю</option>
+                            <option value="month" selected>За месяц</option>
+                            <option value="3months">За 3 месяца</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="type-filter">Тип операции:</label>
+                        <select id="type-filter">
+                            <option value="all">Все операции</option>
+                            <option value="income">Только доход</option>
+                            <option value="expense">Только расход</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="history-stats">
+                    <div class="stat-card">
+                        <div class="stat-value income" id="total-income">+ 0 ₽</div>
+                        <div class="stat-label">Общий доход</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value expense" id="total-expense">- 0 ₽</div>
+                        <div class="stat-label">Общий расход</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-balance">0 ₽</div>
+                        <div class="stat-label">Итог за период</div>
+                    </div>
+                </div>
+                
+                <div class="detailed-transactions-list" id="all-transactions">
+                    <!-- All transactions will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Loading Spinner -->
+        <div id="loading" class="loading-spinner" style="display: none;">
+            <div class="spinner"></div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-bottom">
+                <p>© 2025 XBank. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/transactions.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
