@@ -5,6 +5,7 @@ class UIManager {
         this.loginForm = document.getElementById('loginForm');
         
         this.initEventListeners();
+        this.initDashboardTabs();
     }
 
     initEventListeners() {
@@ -32,6 +33,57 @@ class UIManager {
 
         document.getElementById('registerFormElement').addEventListener('submit', (e) => this.handleRegister(e));
         document.getElementById('loginFormElement').addEventListener('submit', (e) => this.handleLogin(e));
+
+        // Обработчик перевода
+        document.getElementById('makeTransfer').addEventListener('click', () => this.handleTransfer());
+    }
+
+    initDashboardTabs() {
+        const navButtons = document.querySelectorAll('.nav-button');
+        navButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabName = button.getAttribute('data-tab');
+                this.switchTab(tabName);
+            });
+        });
+    }
+
+    switchTab(tabName) {
+        // Деактивируем все кнопки
+        document.querySelectorAll('.nav-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Скрываем все вкладки
+        document.querySelectorAll('.tab-pane').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        // Активируем выбранную кнопку
+        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        
+        // Показываем выбранную вкладку
+        document.getElementById(`${tabName}Tab`).classList.add('active');
+    }
+
+    handleTransfer() {
+        const fromAccount = document.getElementById('fromAccount').value;
+        const toAccount = document.getElementById('toAccount').value;
+        const amount = document.getElementById('transferAmount').value;
+        const comment = document.getElementById('transferComment').value;
+
+        if (!toAccount || !amount || amount <= 0) {
+            this.showNotification('Заполните все поля корректно', 'error');
+            return;
+        }
+
+        // Демо-функциональность перевода
+        this.showNotification(`Перевод на сумму ${amount}₽ выполнен успешно!`, 'success');
+        
+        // Очищаем форму
+        document.getElementById('toAccount').value = '';
+        document.getElementById('transferAmount').value = '';
+        document.getElementById('transferComment').value = '';
     }
 
     showAuthModal() {
@@ -97,7 +149,7 @@ class UIManager {
             this.setLoadingState(true);
             const result = await AuthService.login(credentials);
             this.showNotification('Вход выполнен успешно', 'success');
-            this.hideAuthModal();
+            this.hideAuthModal(); // Закрываем модальное окно после успешного входа
             this.clearForm('loginFormElement');
         } catch (error) {
             this.showNotification(error.message, 'error');

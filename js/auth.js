@@ -10,6 +10,12 @@ class AuthService {
             });
 
             if (!response.ok) {
+                // Если бэкенд недоступен, используем демо-режим
+                if (response.status === 0) {
+                    console.log('Бэкенд недоступен, используем демо-режим');
+                    return this.demoRegister(userData);
+                }
+                
                 const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.message || `Ошибка регистрации: ${response.status}`);
             }
@@ -19,6 +25,13 @@ class AuthService {
 
         } catch (error) {
             console.error('AuthService register error:', error);
+            
+            // Если ошибка сети, используем демо-режим
+            if (error.message.includes('Failed to fetch') || error.message.includes('Network')) {
+                console.log('Сетевая ошибка, используем демо-режим');
+                return this.demoRegister(userData);
+            }
+            
             throw error;
         }
     }
@@ -34,6 +47,12 @@ class AuthService {
             });
 
             if (!response.ok) {
+                // Если бэкенд недоступен, используем демо-режим
+                if (response.status === 0) {
+                    console.log('Бэкенд недоступен, используем демо-режим');
+                    return this.demoLogin(credentials);
+                }
+                
                 const errorData = await response.json().catch(() => ({}));
                 
                 if (response.status === 401) {
@@ -52,10 +71,85 @@ class AuthService {
 
         } catch (error) {
             console.error('AuthService login error:', error);
+            
+            // Если ошибка сети, используем демо-режим
+            if (error.message.includes('Failed to fetch') || error.message.includes('Network')) {
+                console.log('Сетевая ошибка, используем демо-режим');
+                return this.demoLogin(credentials);
+            }
+            
             throw error;
         }
     }
 
+    /* Демо-функции */
+    static demoRegister(userData) {
+        console.log('Демо-регистрация:', userData);
+        
+        const demoUser = {
+            id: Date.now(),
+            username: userData.username,
+            email: userData.email,
+            token: 'demo-token-' + Date.now()
+        };
+        
+        this.setUserData(demoUser);
+        this.updateUI();
+        
+        return demoUser;
+    }
+
+    static demoLogin(credentials) {
+        console.log('Демо-вход:', credentials);
+        
+        const demoUser = {
+            id: 1,
+            username: credentials.username || 'demo-user',
+            email: 'demo@xbank.ru',
+            token: 'demo-token-12345'
+        };
+        
+        this.setUserData(demoUser);
+        this.updateUI();
+        
+        return demoUser;
+    }
+
+    static demoLogin() {
+        console.log('Быстрый демо-вход');
+        
+        const demoUser = {
+            id: 1,
+            username: 'Демо-Пользователь',
+            email: 'demo@xbank.ru',
+            token: 'demo-token-12345'
+        };
+        
+        this.setUserData(demoUser);
+        this.updateUI();
+        
+        // Закрываем модальное окно авторизации напрямую
+        const authModal = document.getElementById('authModal');
+        if (authModal) {
+            authModal.style.display = 'none';
+        }
+        
+        this.showNotification('Демо-вход выполнен успешно!', 'success');
+    }
+
+    static showNotification(message, type) {
+        const notification = document.getElementById('notification');
+        if (notification) {
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
+    }
+
+    /* Остальные методы без изменений */
     static setUserData(userData) {
         localStorage.setItem('xbank_user', JSON.stringify(userData));
     }
@@ -100,8 +194,25 @@ class AuthService {
             if (dashboardView) dashboardView.style.display = 'none';
             if (headerActions) {
                 headerActions.innerHTML = `
-                    <button class="primary-button" onclick="UIManager.showAuthModal()">Войти</button>
+                    <button class="primary-button" onclick="AuthService.showAuthModal()">Войти</button>
                 `;
+            }
+        }
+    }
+
+    static showAuthModal() {
+        const authModal = document.getElementById('authModal');
+        const registerForm = document.getElementById('registerForm');
+        const loginForm = document.getElementById('loginForm');
+        
+        if (authModal) {
+            authModal.style.display = 'block';
+            
+            // Показываем форму регистрации по умолчанию
+            if (registerForm && loginForm) {
+                registerForm.style.display = 'block';
+                loginForm.style.display = 'none';
+                document.getElementById('modalTitle').textContent = 'Регистрация';
             }
         }
     }

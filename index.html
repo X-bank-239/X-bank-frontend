@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-Bank</title>
+    <title>X Bank</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -20,28 +20,112 @@
         </header>
 
         <main class="main">
+            <!-- Приветственный экран для неавторизованных -->
             <div id="welcomeView" class="welcome-view">
                 <div class="welcome-content">
                     <h2>
                         <span class="welcome-title-line1">Добро пожаловать в</span>
-                        <span class="welcome-title-line1">X-Bank</span>
+                        <span class="welcome-title-line2">X-Bank</span>
                     </h2>
-                    <p>Современный подход к финансам для вашей жизни</p>
+                    <p>Современный банкинг для вашей жизни</p>
                     <button id="startButton" class="primary-button">Начать</button>
                 </div>
             </div>
 
+            <!-- Контент для авторизованных (скрыт изначально) -->
             <div id="dashboardView" class="dashboard-view" style="display: none;">
-                <div class="dashboard-content">
-                    <h2>Добро пожаловать, <span id="userName"></span></h2>
-                    <div class="dashboard-cards">
-                        <div class="card">
-                            <h3>Мои счета</h3>
-                            <p>Здесь будут ваши банковские счета</p>
+                <div class="dashboard-container">
+                    <!-- Фиксированная навигация -->
+                    <div class="navigation-container">
+                        <nav class="dashboard-nav">
+                            <button class="nav-button active" data-tab="overview">Обзор</button>
+                            <button class="nav-button" data-tab="transfer">Перевод</button>
+                            <button class="nav-button" data-tab="history">История</button>
+                        </nav>
+                    </div>
+
+                    <div class="tab-content">
+                        <!-- Вкладка Обзор -->
+                        <div id="overviewTab" class="tab-pane active">
+                            <h2>Финансовый обзор</h2>
+                            <div class="balance-card">
+                                <h3>Общий баланс</h3>
+                                <div class="balance-amount" id="totalBalance">25 430 ₽</div>
+                            </div>
+                            <div class="dashboard-cards">
+                                <div class="card">
+                                    <h3>Основной счет</h3>
+                                    <p>••• 4589</p>
+                                    <div class="account-balance">15 430 ₽</div>
+                                </div>
+                                <div class="card">
+                                    <h3>Накопительный счет</h3>
+                                    <p>••• 1234</p>
+                                    <div class="account-balance">10 000 ₽</div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card">
-                            <h3>Операции</h3>
-                            <p>История транзакций и переводов</p>
+
+                        <!-- Вкладка Перевод -->
+                        <div id="transferTab" class="tab-pane">
+                            <h2>Перевод средств</h2>
+                            <div class="transfer-form">
+                                <div class="input-group">
+                                    <label>Счет отправителя</label>
+                                    <select id="fromAccount">
+                                        <option value="main">Основной счет (•••4589) - 15 430 ₽</option>
+                                        <option value="savings">Накопительный счет (•••1234) - 10 000 ₽</option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label>Номер счета получателя</label>
+                                    <input type="text" id="toAccount" placeholder="Введите номер счета">
+                                </div>
+                                <div class="input-group">
+                                    <label>Сумма перевода</label>
+                                    <input type="number" id="transferAmount" placeholder="0 ₽">
+                                </div>
+                                <div class="input-group">
+                                    <label>Комментарий</label>
+                                    <input type="text" id="transferComment" placeholder="Назначение платежа">
+                                </div>
+                                <button id="makeTransfer" class="primary-button full-width">Перевести</button>
+                            </div>
+                        </div>
+
+                        <!-- Вкладка История -->
+                        <div id="historyTab" class="tab-pane">
+                            <h2>История операций</h2>
+                            <div class="transactions-list">
+                                <div class="transaction-item">
+                                    <div class="transaction-info">
+                                        <div class="transaction-title">Перевод от Ивана Петрова</div>
+                                        <div class="transaction-date">15 дек 2024, 14:30</div>
+                                    </div>
+                                    <div class="transaction-amount positive">+5 000 ₽</div>
+                                </div>
+                                <div class="transaction-item">
+                                    <div class="transaction-info">
+                                        <div class="transaction-title">Оплата в кафе "Кофехауз"</div>
+                                        <div class="transaction-date">14 дек 2024, 19:15</div>
+                                    </div>
+                                    <div class="transaction-amount negative">-850 ₽</div>
+                                </div>
+                                <div class="transaction-item">
+                                    <div class="transaction-info">
+                                        <div class="transaction-title">Пополнение счета</div>
+                                        <div class="transaction-date">13 дек 2024, 10:00</div>
+                                    </div>
+                                    <div class="transaction-amount positive">+20 000 ₽</div>
+                                </div>
+                                <div class="transaction-item">
+                                    <div class="transaction-info">
+                                        <div class="transaction-title">Перевод Марии Сидоровой</div>
+                                        <div class="transaction-date">12 дек 2024, 16:45</div>
+                                    </div>
+                                    <div class="transaction-amount negative">-3 000 ₽</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -72,6 +156,12 @@
                         </div>
                         <button type="submit" class="primary-button full-width">Создать аккаунт</button>
                     </form>
+                    <div class="demo-accounts">
+                        <p>Или используйте демо-аккаунт:</p>
+                        <button type="button" class="secondary-button full-width" onclick="AuthService.demoLogin()">
+                            Войти как демо-пользователь
+                        </button>
+                    </div>
                     <div class="auth-switch">
                         <p>Уже есть аккаунт? <a href="#" id="showLogin">Войти</a></p>
                     </div>
@@ -87,6 +177,12 @@
                         </div>
                         <button type="submit" class="primary-button full-width">Войти</button>
                     </form>
+                    <div class="demo-accounts">
+                        <p>Или используйте демо-аккаунт:</p>
+                        <button type="button" class="secondary-button full-width" onclick="AuthService.demoLogin()">
+                            Войти как демо-пользователь
+                        </button>
+                    </div>
                     <div class="auth-switch">
                         <p>Нет аккаунта? <a href="#" id="showRegister">Зарегистрироваться</a></p>
                     </div>
