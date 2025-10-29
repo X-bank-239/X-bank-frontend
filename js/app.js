@@ -1,4 +1,7 @@
 // Main application initialization
+/**
+ * Main app orchestration: connects UI interactions to services.
+ */
 class BankApp {
     constructor() {
         this.init();
@@ -28,7 +31,7 @@ class BankApp {
 
     setupNavigation() {
         const navLinks = document.querySelectorAll('.nav-link');
-        
+
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -39,17 +42,18 @@ class BankApp {
 
     handleNavigation(clickedLink) {
         const targetSection = clickedLink.getAttribute('data-section');
-        
+
         // Remove active class from all links and sections
         document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
         document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
-        
+
         // Add active class to clicked link
         clickedLink.classList.add('active');
-        
-        // Show target section
-        document.getElementById(targetSection).classList.add('active');
-        
+
+        // Show target section (defensive: check element exists)
+        const targetEl = document.getElementById(targetSection);
+        if (targetEl) targetEl.classList.add('active');
+
         // Load section-specific data
         this.loadSectionData(targetSection);
     }

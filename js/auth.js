@@ -1,4 +1,9 @@
 class AuthService {
+    /**
+     * Register new user (tries backend, falls back to demo register on network error)
+     * @param {{username:string,email:string,password:string}} userData
+     * @returns {Promise<object>} created user object or demo user
+     */
     static async register(userData) {
         try {
             const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.REGISTER}`, {
@@ -15,7 +20,7 @@ class AuthService {
                     console.log('Бэкенд недоступен, используем демо-режим');
                     return this.demoRegister(userData);
                 }
-                
+
                 const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.message || `Ошибка регистрации: ${response.status}`);
             }
@@ -25,18 +30,22 @@ class AuthService {
 
         } catch (error) {
             console.error('AuthService register error:', error);
-            
+
             // Если ошибка сети, используем демо-режим
             if (error.message.includes('Failed to fetch') || error.message.includes('Network')) {
                 console.log('Сетевая ошибка, используем демо-режим');
                 return this.demoRegister(userData);
             }
-            
+
             throw error;
         }
     }
 
     static async login(credentials) {
+        /**
+         * Login with backend; falls back to demo login on network error.
+         * @param {{username:string,password:string}} credentials
+         */
         try {
             const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.LOGIN}`, {
                 method: 'POST',
@@ -50,15 +59,15 @@ class AuthService {
                 // Если бэкенд недоступен, используем демо-режим
                 if (response.status === 0) {
                     console.log('Бэкенд недоступен, используем демо-режим');
-                    return this.demoLogin(credentials);
+                    return this.demoLoginWithCredentials(credentials);
                 }
-                
+
                 const errorData = await response.json().catch(() => ({}));
-                
+
                 if (response.status === 401) {
                     throw new Error('Неверное имя пользователя или пароль');
                 }
-                
+
                 throw new Error(errorData.message || `Ошибка входа: ${response.status}`);
             }
 
@@ -71,13 +80,13 @@ class AuthService {
 
         } catch (error) {
             console.error('AuthService login error:', error);
-            
+
             // Если ошибка сети, используем демо-режим
             if (error.message.includes('Failed to fetch') || error.message.includes('Network')) {
                 console.log('Сетевая ошибка, используем демо-режим');
-                return this.demoLogin(credentials);
+                return this.demoLoginWithCredentials(credentials);
             }
-            
+
             throw error;
         }
     }
@@ -99,19 +108,24 @@ class AuthService {
         return demoUser;
     }
 
-    static demoLogin(credentials) {
-        console.log('Демо-вход:', credentials);
-        
+    /**
+     * Demo login helper that accepts credentials and returns a demo user.
+     * (Used as a fallback when backend is unavailable)
+     * @param {{username?:string}} credentials
+     */
+    static demoLoginWithCredentials(credentials) {
+        console.log('Демо-вход (credentials):', credentials);
+
         const demoUser = {
             id: 1,
             username: credentials.username || 'demo-user',
             email: 'demo@xbank.ru',
             token: 'demo-token-12345'
         };
-        
+
         this.setUserData(demoUser);
         this.updateUI();
-        
+
         return demoUser;
     }
 

@@ -1,9 +1,13 @@
 class UIManager {
+    /**
+     * Responsible for handling UI interactions: auth modal, tabs, forms, notifications.
+     */
     constructor() {
         this.authModal = document.getElementById('authModal');
         this.registerForm = document.getElementById('registerForm');
         this.loginForm = document.getElementById('loginForm');
-        
+
+        // Initialize behavior
         this.initEventListeners();
         this.initDashboardTabs();
     }
@@ -31,13 +35,16 @@ class UIManager {
             this.hideAuthModal();
         });
 
-        document.getElementById('registerFormElement').addEventListener('submit', (e) => this.handleRegister(e));
-        document.getElementById('loginFormElement').addEventListener('submit', (e) => this.handleLogin(e));
+    document.getElementById('registerFormElement').addEventListener('submit', (e) => this.handleRegister(e));
+    document.getElementById('loginFormElement').addEventListener('submit', (e) => this.handleLogin(e));
 
         // Обработчик перевода
         document.getElementById('makeTransfer').addEventListener('click', () => this.handleTransfer());
     }
 
+    /**
+     * Initialize dashboard tab navigation (overview / transfer / history)
+     */
     initDashboardTabs() {
         const navButtons = document.querySelectorAll('.nav-button');
         navButtons.forEach(button => {
@@ -48,42 +55,44 @@ class UIManager {
         });
     }
 
+    /**
+     * Switch visible tab by name (keeps DOM manipulation minimal).
+     * @param {string} tabName - one of 'overview', 'transfer', 'history'
+     */
     switchTab(tabName) {
-        // Деактивируем все кнопки
-        document.querySelectorAll('.nav-button').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        
-        // Скрываем все вкладки
-        document.querySelectorAll('.tab-pane').forEach(tab => {
-            tab.classList.remove('active');
-        });
-        
-        // Активируем выбранную кнопку
-        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-        
-        // Показываем выбранную вкладку
-        document.getElementById(`${tabName}Tab`).classList.add('active');
+        // Deactivate all nav buttons
+        document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
+
+        // Hide all tab panes
+        document.querySelectorAll('.tab-pane').forEach(tab => tab.classList.remove('active'));
+
+        // Activate the chosen nav button and tab pane
+        const button = document.querySelector(`[data-tab="${tabName}"]`);
+        const pane = document.getElementById(`${tabName}Tab`);
+        if (button) button.classList.add('active');
+        if (pane) pane.classList.add('active');
     }
 
     handleTransfer() {
-        const fromAccount = document.getElementById('fromAccount').value;
-        const toAccount = document.getElementById('toAccount').value;
-        const amount = document.getElementById('transferAmount').value;
-        const comment = document.getElementById('transferComment').value;
+        // Read values from the UI; keep names explicit
+        const fromAccount = document.getElementById('fromAccount')?.value || '';
+        const toAccount = document.getElementById('toAccount')?.value || '';
+        const amount = parseFloat(document.getElementById('transferAmount')?.value || '0');
+        const comment = document.getElementById('transferComment')?.value || '';
 
+        // Basic validation
         if (!toAccount || !amount || amount <= 0) {
             this.showNotification('Заполните все поля корректно', 'error');
             return;
         }
 
-        // Демо-функциональность перевода
+        // Demo behavior: notify and clear form
         this.showNotification(`Перевод на сумму ${amount}₽ выполнен успешно!`, 'success');
-        
-        // Очищаем форму
-        document.getElementById('toAccount').value = '';
-        document.getElementById('transferAmount').value = '';
-        document.getElementById('transferComment').value = '';
+
+        // Clear form fields if they exist
+        if (document.getElementById('toAccount')) document.getElementById('toAccount').value = '';
+        if (document.getElementById('transferAmount')) document.getElementById('transferAmount').value = '';
+        if (document.getElementById('transferComment')) document.getElementById('transferComment').value = '';
     }
 
     showAuthModal() {
@@ -162,8 +171,9 @@ class UIManager {
         const buttons = document.querySelectorAll('#registerFormElement button, #loginFormElement button');
         buttons.forEach(button => {
             button.disabled = isLoading;
-            button.textContent = isLoading ? 'Загрузка...' : 
-                (button.closest('#registerFormElement') ? 'Создать аккаунт' : 'Войти');
+            // Keep button text semantics based on the form container
+            const isRegisterButton = Boolean(button.closest('#registerFormElement'));
+            button.textContent = isLoading ? 'Загрузка...' : (isRegisterButton ? 'Создать аккаунт' : 'Войти');
         });
     }
 

@@ -1,10 +1,19 @@
 // API service for backend communication
+/**
+ * Minimal API service wrapper used by the app.
+ * Keeps a single request method and a few convenience endpoints.
+ */
 class ApiService {
     constructor() {
         this.baseUrl = API_CONFIG.BASE_URL;
     }
 
     // Generic request method
+    /**
+     * Generic fetch wrapper. Adds JSON headers and optional Authorization.
+     * @param {string} endpoint
+     * @param {RequestInit} [options]
+     */
     async request(endpoint, options = {}) {
         const url = endpoint.startsWith('http') ? endpoint : this.baseUrl + endpoint;
         
@@ -16,15 +25,19 @@ class ApiService {
             ...options
         };
 
-        // Add authorization header if user is logged in
-        if (CURRENT_USER.token) {
-            config.headers['Authorization'] = `Bearer ${CURRENT_USER.token}`;
+        // Add authorization header if user is logged in (CURRENT_USER optional)
+        try {
+            if (typeof CURRENT_USER !== 'undefined' && CURRENT_USER && CURRENT_USER.token) {
+                config.headers['Authorization'] = `Bearer ${CURRENT_USER.token}`;
+            }
+        } catch (e) {
+            // ignore if CURRENT_USER isn't defined in this build/runtime
         }
 
         try {
             showLoading();
             const response = await fetch(url, config);
-            const data = await response.json();
+            const data = await response.json().catch(() => ({}));
 
             if (!response.ok) {
                 throw new Error(data.message || 'Ошибка сервера');

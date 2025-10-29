@@ -1,10 +1,17 @@
 // Transactions management
+/**
+ * TransactionsService: handles accounts and transaction rendering.
+ * Methods are non-destructive and try to fail gracefully if DOM elements are missing.
+ */
 class TransactionsService {
     constructor() {
         this.transactions = [];
     }
 
     // Load user accounts
+    /**
+     * Load accounts from API and render them. Returns accounts array or [] on error.
+     */
     async loadAccounts() {
         if (!auth.isAuthenticated()) {
             showError('Для просмотра счетов необходимо войти в систему');
@@ -27,7 +34,7 @@ class TransactionsService {
         const accountsGrid = document.getElementById('accounts-grid');
         if (!accountsGrid) return;
 
-        if (accounts.length === 0) {
+        if (!Array.isArray(accounts) || accounts.length === 0) {
             accountsGrid.innerHTML = '<p>У вас пока нет счетов</p>';
             return;
         }
@@ -47,7 +54,7 @@ class TransactionsService {
         if (!select) return;
 
         select.innerHTML = '<option value="">Выберите счет</option>' +
-            accounts.map(account => `
+            (accounts || []).map(account => `
                 <option value="${account.id}">
                     ${this.getAccountTypeName(account.type)} (${this.maskAccountNumber(account.number)}) - ${account.balance.toLocaleString('ru-RU')} ₽
                 </option>
@@ -80,9 +87,7 @@ class TransactionsService {
             return;
         }
 
-        container.innerHTML = transactions.map(transaction => 
-            this.createTransactionElement(transaction, false)
-        ).join('');
+        container.innerHTML = transactions.map(transaction => this.createTransactionElement(transaction, false)).join('');
     }
 
     // Load detailed transaction history with filters
@@ -118,9 +123,7 @@ class TransactionsService {
             return;
         }
 
-        container.innerHTML = transactions.map(transaction => 
-            this.createTransactionElement(transaction, true)
-        ).join('');
+        container.innerHTML = transactions.map(transaction => this.createTransactionElement(transaction, true)).join('');
     }
 
     // Create transaction HTML element
