@@ -57,12 +57,17 @@ body {
   align-items: center;
 }
 
-.logo h1 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--primary-color);
+.logo-link {
+  display: block;
+  text-decoration: none;
 }
 
+.logo-image {
+  display: block;
+  height: 35px;
+  width: auto;
+  object-fit: contain;
+}
 .header-actions {
   display: flex;
   gap: 1rem;
