@@ -1,7 +1,7 @@
 class AuthService {
   /**
    * Register new user (tries backend, falls back to demo register on network error)
-   * @param {{username:string,email:string,password:string}} userData
+   * @param {{firstname:string,lastname:string,email:string,birthdate:date}} userData
    * @returns {Promise<object>} created user object or demo user
    */
   static async register(userData) {
