@@ -146,9 +146,11 @@ class UIManager {
     e.preventDefault();
 
     const userData = {
-      username: document.getElementById("regUsername").value,
+      firstName: document.getElementById("regFirstName").value,
+      lastName: document.getElementById("regLastName").value,
       email: document.getElementById("regEmail").value,
-      password: document.getElementById("regPassword").value,
+      birthdate: document.getElementById("regBirthdate").value,
+      // password: document.getElementById("regPassword").value,
     };
 
     try {
